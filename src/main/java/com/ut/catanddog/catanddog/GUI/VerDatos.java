@@ -1,7 +1,10 @@
 package com.ut.catanddog.catanddog.GUI;
 
-import com.ut.catanddog.catanddog.Logica.Controladora;
-import com.ut.catanddog.catanddog.Logica.Mascota;
+import com.ut.catanddog.catanddog.GUI.presentadores.PresentadorVerDatos;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorMascotas;
+import com.ut.catanddog.catanddog.dominio.modelo.Mascota;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioDueños;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioMascotas;
 import java.awt.Component;
 import java.awt.Image;
 import java.util.List;
@@ -17,10 +20,11 @@ import javax.swing.table.DefaultTableModel;
 
 public class VerDatos extends javax.swing.JFrame {
 
-    Controladora control = null;
+    PresentadorVerDatos presentador;
 
     public VerDatos() {
-        control = new Controladora();
+        GestorMascotas gestorMascotas = new GestorMascotas(new JpaRepositorioMascotas(), new JpaRepositorioDueños());
+        presentador = new PresentadorVerDatos(gestorMascotas);
         initComponents();
     }
 
@@ -174,8 +178,8 @@ public class VerDatos extends javax.swing.JFrame {
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
         if (tablaMascotas.getRowCount() > 0) {
             if (tablaMascotas.getSelectedRow() != -1) {
-                int num_cliente = Integer.parseInt(String.valueOf(tablaMascotas.getValueAt(tablaMascotas.getSelectedRow(), 0)));
-                control.borrarMascota(num_cliente);
+                int id = Integer.parseInt(String.valueOf(tablaMascotas.getValueAt(tablaMascotas.getSelectedRow(), 0)));
+                presentador.eliminarMascota(id);
                 mostrarMensaje("Mascota eliminada correctamente", "Info", "Borrado de Mascota");
                 cargarTabla();
             } else {
@@ -193,8 +197,8 @@ public class VerDatos extends javax.swing.JFrame {
     private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
         if (tablaMascotas.getRowCount() > 0) {
             if (tablaMascotas.getSelectedRow() != -1) {
-                int num_cliente = Integer.parseInt(String.valueOf(tablaMascotas.getValueAt(tablaMascotas.getSelectedRow(), 0)));
-                ModificarDatos pantallaModif = new ModificarDatos(num_cliente);
+                int id = Integer.parseInt(String.valueOf(tablaMascotas.getValueAt(tablaMascotas.getSelectedRow(), 0)));
+                ModificarDatos pantallaModif = new ModificarDatos(id);
                 pantallaModif.setVisible(true);
                 pantallaModif.setLocationRelativeTo(null);
                 this.dispose();
@@ -233,7 +237,7 @@ public class VerDatos extends javax.swing.JFrame {
         String titulos[] = {"Num", "Nombre", "Color", "Raza", "Alergico", "At. Esp.", "Dueño", "Cel", "Imagen"};
         modeloTabla.setColumnIdentifiers(titulos);
 
-        List<Mascota> listaMascotas = control.traerMascotas();
+        List<Mascota> listaMascotas = presentador.listarMascotas();
 
         if (listaMascotas != null) {
             for (Mascota masco : listaMascotas) {
@@ -245,14 +249,14 @@ public class VerDatos extends javax.swing.JFrame {
                 }
 
                 Object[] objeto = {
-                    masco.getNum_cliente(),
+                    masco.getId(),
                     masco.getNombre(),
                     masco.getColor(),
                     masco.getRaza(),
                     masco.getAlergico(),
-                    masco.getAtencion_especial(),
-                    masco.getUnDueño().getNombre(),
-                    masco.getUnDueño().getCelDueño(),
+                    masco.getAtencionEspecial(),
+                    masco.getDueño().getNombre(),
+                    masco.getDueño().getCelular(),
                     imagenIcono
                 };
 
@@ -270,7 +274,7 @@ public class VerDatos extends javax.swing.JFrame {
                 if (!event.getValueIsAdjusting()) {
                     int selectedRow = tablaMascotas.getSelectedRow();
                     if (selectedRow != -1) {
-                        int num_cliente = (int) tablaMascotas.getValueAt(selectedRow, 0);
+                        int id = (int) tablaMascotas.getValueAt(selectedRow, 0);
                     }
                 }
             }

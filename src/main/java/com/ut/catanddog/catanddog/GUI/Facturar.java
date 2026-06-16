@@ -1,46 +1,46 @@
 package com.ut.catanddog.catanddog.GUI;
 
-import com.itextpdf.text.BadElementException;
-import com.itextpdf.text.BaseColor;
-import com.ut.catanddog.catanddog.Logica.Controladora;
-import com.ut.catanddog.catanddog.Logica.Dueño;
-import com.ut.catanddog.catanddog.Logica.Mascota;
-import com.ut.catanddog.catanddog.Logica.Servicio;
+import com.ut.catanddog.catanddog.GUI.presentadores.PresentadorFacturar;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorDueños;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorFacturacion;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorMascotas;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorServicios;
+import com.ut.catanddog.catanddog.dominio.modelo.Servicio;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioDueños;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioFacturas;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioMascotas;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioServicios;
+import com.ut.catanddog.catanddog.infraestructura.pdf.ItextGeneradorFacturaPDF;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Date;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.Barcode128;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class Facturar extends javax.swing.JFrame {
 
-    Controladora control = null;
-    int num_cliente;
-    Mascota masco;
+    PresentadorFacturar presentador;
 
     public Facturar() {
-        control = new Controladora();
+        JpaRepositorioDueños repoDueños = new JpaRepositorioDueños();
+        JpaRepositorioMascotas repoMascotas = new JpaRepositorioMascotas();
+        JpaRepositorioFacturas repoFacturas = new JpaRepositorioFacturas();
+        JpaRepositorioServicios repoServicios = new JpaRepositorioServicios();
+        ItextGeneradorFacturaPDF generadorPDF = new ItextGeneradorFacturaPDF();
+
+        GestorFacturacion gestorFacturacion = new GestorFacturacion(
+                repoFacturas, repoServicios, repoDueños, repoMascotas, generadorPDF);
+        GestorDueños gestorDueños = new GestorDueños(repoDueños);
+        GestorMascotas gestorMascotas = new GestorMascotas(repoMascotas, repoDueños);
+        GestorServicios gestorServicios = new GestorServicios(repoServicios);
+
+        presentador = new PresentadorFacturar(gestorFacturacion, gestorDueños, gestorMascotas, gestorServicios);
         initComponents();
 
         cargarTablaServicios();
-        cargarClientesEnComboBox();
+        presentador.cargarClientes(cmbCliente);
 
         txtSubtotal.setEditable(false);
         txtIva.setEditable(false);
@@ -58,21 +58,21 @@ public class Facturar extends javax.swing.JFrame {
             }
         });
 
-        cargarServiciosEnComboBox();
+        presentador.cargarServicios(cmbServicio);
         cmbServicio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmbServicioActionPerformed(evt);
             }
         });
 
-        cargarMascotasEnComboBox();
+        presentador.cargarMascotas(cmbMascota);
         cmbMascota.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cmbServicioActionPerformed(evt);
             }
         });
 
-        configurarSiguienteIdFactura();
+        txtFacturaNo.setText(String.valueOf(presentador.obtenerSiguienteIdFactura()));
     }
 
     @SuppressWarnings("unchecked")
@@ -565,115 +565,33 @@ public class Facturar extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCalcularCambioActionPerformed
 
     private void btnRegistrarVentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarVentaActionPerformed
-        String estado = (String) cmbEstado.getSelectedItem();
-        String fecha = new SimpleDateFormat("dd-MM-yyyy").format(txtFecha.getDate());
-        String iva = txtIva.getText();
-        String subtotalFactu = txtSubtotal.getText();
-        String total_pagar = txtTotalPagar.getText();
-        String nombreDueño = (String) cmbCliente.getSelectedItem();
-
-        int cantidad = (int) tablaServicios.getValueAt(0, 2);
-        String nombreServicio = (String) tablaServicios.getValueAt(0, 1);
-        double precioUnitario = (double) tablaServicios.getValueAt(0, 3);
-        double porcentajeIva = (double) tablaServicios.getValueAt(0, 5);
-        String mascota = (String) cmbMascota.getSelectedItem();
-
-        control.guardarFactura(estado, fecha, iva, subtotalFactu, total_pagar, nombreDueño, cantidad, nombreServicio, precioUnitario, porcentajeIva, mascota);
-
-        JOptionPane optionPane = new JOptionPane("Se guardó correctamente");
-        optionPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
-        JDialog dialog = optionPane.createDialog("Guardado Exitoso");
-        dialog.setAlwaysOnTop(true);
-        dialog.setVisible(true);
-
-        int siguienteIdFactura = Integer.parseInt(txtFacturaNo.getText()) + 1;
-        txtFacturaNo.setText(String.valueOf(siguienteIdFactura));
-
-        Document document = new Document();
         try {
-            String filePath = "C:/Facturas/Factura_" + txtFacturaNo.getText() + ".pdf";
-            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filePath));
-            document.open();
+            String estado = (String) cmbEstado.getSelectedItem();
+            Date fechaVenta = txtFecha.getDate();
+            double iva = Double.parseDouble(txtIva.getText());
+            double subtotal = Double.parseDouble(txtSubtotal.getText());
+            double totalPagar = Double.parseDouble(txtTotalPagar.getText());
+            String nombreDueño = (String) cmbCliente.getSelectedItem();
+            String mascota = (String) cmbMascota.getSelectedItem();
 
-            try {
-                Image logo = Image.getInstance(getClass().getResource("/imagenes/CatandDog.jpeg"));
-                logo.scaleToFit(100, 100);
-                logo.setAlignment(Element.ALIGN_CENTER);
-                document.add(logo);
-            } catch (BadElementException | IOException e) {
-                e.printStackTrace();
-            }
+            int cantidad = (int) tablaServicios.getValueAt(0, 2);
+            String nombreServicio = (String) tablaServicios.getValueAt(0, 1);
+            double precioUnitario = (double) tablaServicios.getValueAt(0, 3);
+            double porcentajeIva = (double) tablaServicios.getValueAt(0, 5);
 
-            Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
-            Paragraph title = new Paragraph("Factura Electrónica", titleFont);
-            title.setAlignment(Element.ALIGN_CENTER);
-            document.add(title);
+            presentador.registrarVenta(estado, fechaVenta, subtotal, iva, totalPagar,
+                    nombreDueño, cantidad, nombreServicio, precioUnitario, porcentajeIva, mascota);
 
-            document.add(new Paragraph(" "));
-            document.add(new Paragraph(" "));
+            JOptionPane optionPane = new JOptionPane("Se guardó correctamente");
+            optionPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
+            JDialog dialog = optionPane.createDialog("Guardado Exitoso");
+            dialog.setAlwaysOnTop(true);
+            dialog.setVisible(true);
 
-            Font messageFont = new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.ITALIC);
-            Paragraph additionalMessage = new Paragraph("Factura impresa por Computadora resolución Dian No 18764052371431 de 2023-07-26 Vigencia 12 MESES", messageFont);
-            additionalMessage.setAlignment(Element.ALIGN_CENTER);
-            document.add(additionalMessage);
-
-            document.add(new Paragraph(" "));
-
-            Font subtitleFont = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD);
-            Paragraph subtitle = new Paragraph("Sede Principal Cádiz Carrera 4B #31-14 Pbx. 2645486", subtitleFont);
-            subtitle.setAlignment(Element.ALIGN_CENTER);
-            document.add(subtitle);
-
-            Font subtitleFont1 = new Font(Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD);
-            Paragraph subtitle1 = new Paragraph("Sede Vergel Centro Comercial Vergel Local 112", subtitleFont1);
-            subtitle1.setAlignment(Element.ALIGN_CENTER);
-            document.add(subtitle1);
-
-            document.add(new Paragraph(" "));
-
-            PdfPTable table = new PdfPTable(2);
-            table.setWidthPercentage(100);
-            table.setSpacingBefore(10f);
-            table.setSpacingAfter(10f);
-
-            table.addCell("Factura No:");
-            table.addCell(txtFacturaNo.getText());
-            table.addCell("Estado:");
-            table.addCell(estado);
-            table.addCell("Fecha:");
-            table.addCell(fecha);
-            table.addCell("IVA:");
-            table.addCell(iva);
-            table.addCell("Subtotal:");
-            table.addCell(subtotalFactu);
-            table.addCell("Total a pagar:");
-            table.addCell(total_pagar);
-            table.addCell("Nombre del dueño:");
-            table.addCell(nombreDueño);
-            table.addCell("Cantidad:");
-            table.addCell(String.valueOf(cantidad));
-            table.addCell("Nombre del servicio:");
-            table.addCell(nombreServicio);
-            table.addCell("Precio unitario:");
-            table.addCell(String.valueOf(precioUnitario));
-            table.addCell("Porcentaje de IVA:");
-            table.addCell(String.valueOf(porcentajeIva));
-            table.addCell("Mascota:");
-            table.addCell(mascota);
-
-            document.add(table);
-            document.add(new Paragraph(" "));
-
-            Barcode128 barcode = new Barcode128();
-            barcode.setCode(txtFacturaNo.getText());
-            Image code128Image = barcode.createImageWithBarcode(writer.getDirectContent(), BaseColor.BLACK, BaseColor.BLACK);
-            code128Image.setAlignment(Element.ALIGN_CENTER);
-            document.add(code128Image);
-
-        } catch (DocumentException | FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            document.close();
+            int siguienteIdFactura = Integer.parseInt(txtFacturaNo.getText()) + 1;
+            txtFacturaNo.setText(String.valueOf(siguienteIdFactura));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnRegistrarVentaActionPerformed
 
@@ -685,7 +603,7 @@ public class Facturar extends javax.swing.JFrame {
             try {
                 int cantidad = Integer.parseInt(cantidadTexto);
 
-                Servicio servicio = obtenerServicioPorNombre(nombreServicio);
+                Servicio servicio = presentador.buscarServicioPorNombre(nombreServicio);
 
                 if (servicio != null) {
                     double precioUnitario = servicio.getPrecio();
@@ -800,19 +718,6 @@ public class Facturar extends javax.swing.JFrame {
     private javax.swing.JTextField txtTotalPagar;
     // End of variables declaration//GEN-END:variables
 
-    private void cargarClientesEnComboBox() {
-        cmbCliente.removeAllItems();
-        List<Mascota> listaMascotas = control.traerMascotas();
-        Set<String> nombresDueños = new HashSet<>();
-        for (Mascota mascota : listaMascotas) {
-            Dueño dueño = mascota.getUnDueño();
-            nombresDueños.add(dueño.getNombre());
-        }
-        for (String nombreDueño : nombresDueños) {
-            cmbCliente.addItem(nombreDueño);
-        }
-    }
-
     private void buscarYSeleccionarCliente() {
         String nombreBuscado = txtClienteBuscar.getText().trim();
         if (nombreBuscado.isEmpty()) {
@@ -831,29 +736,6 @@ public class Facturar extends javax.swing.JFrame {
         if (!encontrado) {
             JOptionPane.showMessageDialog(this, "Dueño no encontrado.");
         }
-    }
-
-    private void cargarServiciosEnComboBox() {
-        cmbServicio.removeAllItems();
-        List<Servicio> listaServicios = control.traerListaServicios();
-        if (listaServicios == null || listaServicios.isEmpty()) {
-            return;
-        }
-        for (Servicio servicio : listaServicios) {
-            cmbServicio.addItem(servicio.getNombre());
-        }
-    }
-
-    private Servicio obtenerServicioPorNombre(String nombreServicio) {
-        List<Servicio> listaServicios = control.traerListaServicios();
-        if (listaServicios != null) {
-            for (Servicio servicio : listaServicios) {
-                if (servicio.getNombre().equals(nombreServicio)) {
-                    return servicio;
-                }
-            }
-        }
-        return null;
     }
 
     private void cargarTablaServicios() {
@@ -892,24 +774,6 @@ public class Facturar extends javax.swing.JFrame {
         txtSubtotal.setText(totalSubtotal.toString());
         txtIva.setText(totalIva.toString());
         txtTotalPagar.setText(totalPagar.toString());
-    }
-
-    private void cargarMascotasEnComboBox() {
-        cmbMascota.removeAllItems();
-        List<Mascota> listaMascotas = control.traerMascotas();
-        Set<String> nombresMascotas = new HashSet<>();
-        for (Mascota mascota : listaMascotas) {
-            nombresMascotas.add(mascota.getNombre());
-        }
-        for (String nombreMascota : nombresMascotas) {
-            cmbMascota.addItem(nombreMascota);
-        }
-    }
-
-    private void configurarSiguienteIdFactura() {
-        int ultimoIdFactura = control.obtenerUltimoIdFactura();
-        int siguienteIdFactura = ultimoIdFactura + 1;
-        txtFacturaNo.setText(String.valueOf(siguienteIdFactura));
     }
 
 }

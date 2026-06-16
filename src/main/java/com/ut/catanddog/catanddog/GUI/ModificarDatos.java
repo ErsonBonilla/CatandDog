@@ -1,7 +1,10 @@
 package com.ut.catanddog.catanddog.GUI;
 
-import com.ut.catanddog.catanddog.Logica.Controladora;
-import com.ut.catanddog.catanddog.Logica.Mascota;
+import com.ut.catanddog.catanddog.GUI.presentadores.PresentadorModificarDatos;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorMascotas;
+import com.ut.catanddog.catanddog.dominio.modelo.Mascota;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioDueños;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioMascotas;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -16,15 +19,17 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ModificarDatos extends javax.swing.JFrame {
 
-    Controladora control = null;
-    int num_cliente;
+    PresentadorModificarDatos presentador;
+    int idMascota;
     Mascota masco;
     private Image imagenSeleccionada;
 
-    public ModificarDatos(int num_cliente) {
-        control = new Controladora();
+    public ModificarDatos(int idMascota) {
+        GestorMascotas gestorMascotas = new GestorMascotas(new JpaRepositorioMascotas(), new JpaRepositorioDueños());
+        presentador = new PresentadorModificarDatos(gestorMascotas);
+        this.idMascota = idMascota;
         initComponents();
-        cargarDatos(num_cliente);
+        cargarDatos(idMascota);
     }
 
     @SuppressWarnings("unchecked")
@@ -355,31 +360,35 @@ public class ModificarDatos extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        String nombreMasco = txtNombre.getText();
-        String raza = txtRaza.getText();
-        String color = txtColor.getText();
-        String observaciones = txtObservaciones.getText();
-        String alergico = (String) cmbAlergico.getSelectedItem();
-        String atenEsp = (String) cmbAtencionEspecial.getSelectedItem();
-
-        byte[] imagen = null;
         try {
-            imagen = obtenerDatosImagen();
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Error al guardar la imagen: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            String nombreMasco = txtNombre.getText();
+            String raza = txtRaza.getText();
+            String color = txtColor.getText();
+            String observaciones = txtObservaciones.getText();
+            String alergico = (String) cmbAlergico.getSelectedItem();
+            String atenEsp = (String) cmbAtencionEspecial.getSelectedItem();
+
+            byte[] imagen = null;
+            try {
+                imagen = obtenerDatosImagen();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error al guardar la imagen: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String nombreDueño = txtNombreDueño.getText();
+            String celDueño = txtCelDueño.getText();
+            presentador.guardarCambios(idMascota, nombreMasco, raza, color, alergico, atenEsp, observaciones, imagen, nombreDueño, celDueño);
+
+            mostrarMensaje("Edición realizada correctamente", "Info", "Edición Correcta");
+            VerDatos pantalla = new VerDatos();
+            pantalla.setVisible(true);
+            pantalla.setLocationRelativeTo(null);
+
+            this.dispose();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        String nombreDueño = txtNombreDueño.getText();
-        String celDueño = txtCelDueño.getText();
-        control.modificarMascota(masco, nombreMasco, raza, color, observaciones, alergico, atenEsp, nombreDueño, celDueño, imagen);
-
-        mostrarMensaje("Edición realizada correctamente", "Info", "Edición Correcta");
-        VerDatos pantalla = new VerDatos();
-        pantalla.setVisible(true);
-        pantalla.setLocationRelativeTo(null);
-
-        this.dispose();
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void txtColorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtColorActionPerformed
@@ -435,24 +444,24 @@ public class ModificarDatos extends javax.swing.JFrame {
     private javax.swing.JTextField txtRaza;
     // End of variables declaration//GEN-END:variables
 
-    private void cargarDatos(int num_cliente) {
-        this.masco = control.traerMascota(num_cliente);
+    private void cargarDatos(int idMascota) {
+        this.masco = presentador.buscarMascota(idMascota);
         txtNombre.setText(masco.getNombre());
         txtRaza.setText(masco.getRaza());
         txtColor.setText(masco.getColor());
-        txtNombreDueño.setText(masco.getUnDueño().getNombre());
-        txtCelDueño.setText(masco.getUnDueño().getCelDueño());
+        txtNombreDueño.setText(masco.getDueño().getNombre());
+        txtCelDueño.setText(masco.getDueño().getCelular());
         txtObservaciones.setText(masco.getObservaciones());
 
-        if (masco.getAlergico().equals("SI")) {
+        if ("SI".equals(masco.getAlergico())) {
             cmbAlergico.setSelectedIndex(1);
-        } else if (masco.getAlergico().equals("NO")) {
+        } else if ("NO".equals(masco.getAlergico())) {
             cmbAlergico.setSelectedIndex(2);
         }
 
-        if (masco.getAtencion_especial().equals("SI")) {
+        if ("SI".equals(masco.getAtencionEspecial())) {
             cmbAtencionEspecial.setSelectedIndex(1);
-        } else if (masco.getAtencion_especial().equals("NO")) {
+        } else if ("NO".equals(masco.getAtencionEspecial())) {
             cmbAtencionEspecial.setSelectedIndex(2);
         }
 

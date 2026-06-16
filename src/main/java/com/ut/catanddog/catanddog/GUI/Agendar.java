@@ -1,42 +1,30 @@
 package com.ut.catanddog.catanddog.GUI;
 
-import com.ut.catanddog.catanddog.Logica.Controladora;
-import com.ut.catanddog.catanddog.Logica.Dueño;
-import com.ut.catanddog.catanddog.Logica.Mascota;
+import com.ut.catanddog.catanddog.GUI.presentadores.PresentadorAgendar;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorAgenda;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorDueños;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorMascotas;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioAgendas;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioDueños;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioMascotas;
 import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Date;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 public class Agendar extends javax.swing.JFrame {
 
-    Controladora control;
-    int num_cliente;
-    Mascota masco;
+    PresentadorAgendar presentador;
 
     public Agendar() {
-        control = new Controladora();
+        GestorAgenda gestorAgenda = new GestorAgenda(new JpaRepositorioAgendas());
+        GestorDueños gestorDueños = new GestorDueños(new JpaRepositorioDueños());
+        GestorMascotas gestorMascotas = new GestorMascotas(new JpaRepositorioMascotas(), new JpaRepositorioDueños());
+        presentador = new PresentadorAgendar(gestorAgenda, gestorDueños, gestorMascotas);
         initComponents();
-        cargarClientesEnComboBox();
-        cmbCliente.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmbClienteActionPerformed(evt);
-            }
-        });
-        cargarMascotasEnComboBox();
-        cmbMascota.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmbClienteActionPerformed(evt);
-            }
-        });
-        cargarCelularDueñoEnComboBox();
-        cmbCelDueño.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmbClienteActionPerformed(evt);
-            }
-        });
+        presentador.cargarClientes(cmbCliente);
+        presentador.cargarMascotas(cmbMascota);
+        presentador.cargarCelulares(cmbCelDueño);
     }
 
     @SuppressWarnings("unchecked")
@@ -275,19 +263,24 @@ public class Agendar extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        String descripcion = txtDescripcion.getText();
-        String fecha_cita = new SimpleDateFormat("dd-MM-yyyy").format(txtFecha.getDate());
-        String celDueño = (String) cmbCelDueño.getSelectedItem();
-        String cliente = (String) cmbCliente.getSelectedItem();
-        String mascota = (String) cmbMascota.getSelectedItem();
+        try {
+            String descripcion = txtDescripcion.getText();
+            Date fechaCita = txtFecha.getDate();
+            String celDueño = (String) cmbCelDueño.getSelectedItem();
+            String cliente = (String) cmbCliente.getSelectedItem();
+            String mascota = (String) cmbMascota.getSelectedItem();
 
-        control.guardarCita(descripcion, fecha_cita, celDueño, cliente, mascota);
+            String fechaStr = new SimpleDateFormat("dd-MM-yyyy").format(fechaCita);
+            presentador.guardarCita(descripcion, fechaCita, celDueño, cliente, mascota);
 
-        JOptionPane optionPane = new JOptionPane("Se guardó correctamente");
-        optionPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
-        JDialog dialog = optionPane.createDialog("Guardado Exitoso");
-        dialog.setAlwaysOnTop(true);
-        dialog.setVisible(true);
+            JOptionPane optionPane = new JOptionPane("Se guardó correctamente");
+            optionPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
+            JDialog dialog = optionPane.createDialog("Guardado Exitoso");
+            dialog.setAlwaysOnTop(true);
+            dialog.setVisible(true);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnRegresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegresarActionPerformed
@@ -320,43 +313,5 @@ public class Agendar extends javax.swing.JFrame {
     private javax.swing.JTextField txtDescripcion;
     private com.toedter.calendar.JDateChooser txtFecha;
     // End of variables declaration//GEN-END:variables
-
-    private void cargarClientesEnComboBox() {
-        cmbCliente.removeAllItems();
-        List<Mascota> listaMascotas = control.traerMascotas();
-        Set<String> nombresDueños = new HashSet<>();
-        for (Mascota mascota : listaMascotas) {
-            Dueño dueño = mascota.getUnDueño();
-            nombresDueños.add(dueño.getNombre());
-        }
-        for (String nombreDueño : nombresDueños) {
-            cmbCliente.addItem(nombreDueño);
-        }
-    }
-
-    private void cargarMascotasEnComboBox() {
-        cmbMascota.removeAllItems();
-        List<Mascota> listaMascotas = control.traerMascotas();
-        Set<String> nombresMascotas = new HashSet<>();
-        for (Mascota mascota : listaMascotas) {
-            nombresMascotas.add(mascota.getNombre());
-        }
-        for (String nombreMascota : nombresMascotas) {
-            cmbMascota.addItem(nombreMascota);
-        }
-    }
-
-    private void cargarCelularDueñoEnComboBox() {
-        cmbCelDueño.removeAllItems();
-        List<Mascota> listaMascotas = control.traerMascotas();
-        Set<String> celularesDueños = new HashSet<>();
-        for (Mascota mascota : listaMascotas) {
-            Dueño dueño = mascota.getUnDueño();
-            celularesDueños.add(dueño.getCelDueño());
-        }
-        for (String celDueño : celularesDueños) {
-            cmbCelDueño.addItem(celDueño);
-        }
-    }
 
 }

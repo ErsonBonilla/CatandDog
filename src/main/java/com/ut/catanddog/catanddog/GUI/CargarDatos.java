@@ -1,6 +1,10 @@
 package com.ut.catanddog.catanddog.GUI;
 
-import com.ut.catanddog.catanddog.Logica.Controladora;
+import com.ut.catanddog.catanddog.GUI.presentadores.PresentadorCargaDatos;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorDueños;
+import com.ut.catanddog.catanddog.aplicacion.servicios.GestorMascotas;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioDueños;
+import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioMascotas;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -15,10 +19,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class CargarDatos extends javax.swing.JFrame {
 
-    Controladora control = new Controladora();
+    PresentadorCargaDatos presentador;
     private Image imagenSeleccionada;
 
     public CargarDatos() {
+        GestorMascotas gestorMascotas = new GestorMascotas(new JpaRepositorioMascotas(), new JpaRepositorioDueños());
+        GestorDueños gestorDueños = new GestorDueños(new JpaRepositorioDueños());
+        presentador = new PresentadorCargaDatos(gestorMascotas, gestorDueños);
         initComponents();
     }
 
@@ -376,7 +383,7 @@ public class CargarDatos extends javax.swing.JFrame {
             return;
         }
 
-        control.guardar(nombreMasco, raza, color, observaciones, alergico, atenEsp, nombreDueño, celDueño, imagen);
+        presentador.guardar(nombreMasco, raza, color, alergico, atenEsp, observaciones, nombreDueño, celDueño, imagen);
 
         JOptionPane optionPane = new JOptionPane("Se guardó correctamente");
         optionPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
