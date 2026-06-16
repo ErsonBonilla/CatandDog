@@ -646,7 +646,7 @@ public class Facturar extends javax.swing.JFrame {
     private void txtCantidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCantidadActionPerformed
         String cantidadStr = txtCantidad.getText();
         try {
-            int cantidad = Integer.parseInt(cantidadStr);
+            Integer.parseInt(cantidadStr);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Por favor, ingrese una cantidad válida.");
         }

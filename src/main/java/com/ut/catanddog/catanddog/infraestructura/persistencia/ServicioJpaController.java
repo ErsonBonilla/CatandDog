@@ -9,6 +9,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -91,9 +92,9 @@ public class ServicioJpaController implements Serializable {
     private List<ServicioJpaEntity> findServicioEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = getEntityManager();
         try {
-            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+            CriteriaQuery<ServicioJpaEntity> cq = em.getCriteriaBuilder().createQuery(ServicioJpaEntity.class);
             cq.select(cq.from(ServicioJpaEntity.class));
-            Query q = em.createQuery(cq);
+            TypedQuery<ServicioJpaEntity> q = em.createQuery(cq);
             if (!all) {
                 q.setMaxResults(maxResults);
                 q.setFirstResult(firstResult);
@@ -116,10 +117,10 @@ public class ServicioJpaController implements Serializable {
     public int getServicioCount() {
         EntityManager em = getEntityManager();
         try {
-            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+            CriteriaQuery<Long> cq = em.getCriteriaBuilder().createQuery(Long.class);
             Root<ServicioJpaEntity> rt = cq.from(ServicioJpaEntity.class);
             cq.select(em.getCriteriaBuilder().count(rt));
-            Query q = em.createQuery(cq);
+            TypedQuery<Long> q = em.createQuery(cq);
             return ((Long) q.getSingleResult()).intValue();
         } finally {
             em.close();

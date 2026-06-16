@@ -75,6 +75,11 @@ public class FacturaJpaEntity implements Serializable {
         if (factura.getDueño() != null) {
             e.dueño = DueñoJpaEntity.fromDominio(factura.getDueño());
         }
+        if (factura.getServicios() != null) {
+            e.servicios = factura.getServicios().stream()
+                    .map(ServicioJpaEntity::fromDominio)
+                    .collect(java.util.stream.Collectors.toList());
+        }
         return e;
     }
 

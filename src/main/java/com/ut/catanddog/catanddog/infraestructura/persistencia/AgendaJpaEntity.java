@@ -57,6 +57,12 @@ public class AgendaJpaEntity implements Serializable {
         e.descripcion = agenda.getDescripcion();
         e.fechaCita = agenda.getFechaCita();
         e.celularDueño = agenda.getCelularDueño();
+        if (agenda.getDueño() != null) {
+            e.dueño = DueñoJpaEntity.fromDominio(agenda.getDueño());
+        }
+        if (agenda.getMascota() != null) {
+            e.mascota = MascotaJpaEntity.fromDominio(agenda.getMascota());
+        }
         return e;
     }
 

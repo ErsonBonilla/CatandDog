@@ -8,12 +8,6 @@
     <class>com.ut.catanddog.catanddog.infraestructura.persistencia.ServicioJpaEntity</class>
     <class>com.ut.catanddog.catanddog.infraestructura.persistencia.FacturaJpaEntity</class>
     <class>com.ut.catanddog.catanddog.infraestructura.persistencia.AgendaJpaEntity</class>
-    <!-- Entidades legacy (Logica.* - mantener para compatibilidad) -->
-    <class>com.ut.catanddog.catanddog.Logica.Dueño</class>
-    <class>com.ut.catanddog.catanddog.Logica.Mascota</class>
-    <class>com.ut.catanddog.catanddog.Logica.Servicio</class>
-    <class>com.ut.catanddog.catanddog.Logica.Factura</class>
-    <class>com.ut.catanddog.catanddog.Logica.Agenda</class>
     <properties>
       <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
       <property name="javax.persistence.schema-generation.database.action" value="create"/>

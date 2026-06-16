@@ -7,7 +7,6 @@ import com.ut.catanddog.catanddog.aplicacion.servicios.GestorMascotas;
 import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioAgendas;
 import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioDueños;
 import com.ut.catanddog.catanddog.infraestructura.persistencia.JpaRepositorioMascotas;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -270,7 +269,6 @@ public class Agendar extends javax.swing.JFrame {
             String cliente = (String) cmbCliente.getSelectedItem();
             String mascota = (String) cmbMascota.getSelectedItem();
 
-            String fechaStr = new SimpleDateFormat("dd-MM-yyyy").format(fechaCita);
             presentador.guardarCita(descripcion, fechaCita, celDueño, cliente, mascota);
 
             JOptionPane optionPane = new JOptionPane("Se guardó correctamente");

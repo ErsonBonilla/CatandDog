@@ -50,6 +50,12 @@ public class ServicioJpaEntity implements Serializable {
         e.cantidad = servicio.getCantidad();
         e.precio = servicio.getPrecio();
         e.porcentajeIva = servicio.getPorcentajeIva();
+        if (servicio.getMascota() != null) {
+            e.mascota = MascotaJpaEntity.fromDominio(servicio.getMascota());
+        }
+        if (servicio.getFactura() != null) {
+            e.factura = FacturaJpaEntity.fromDominio(servicio.getFactura());
+        }
         return e;
     }
 

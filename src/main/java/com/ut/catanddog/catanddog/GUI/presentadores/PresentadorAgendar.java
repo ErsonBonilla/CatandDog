@@ -60,7 +60,4 @@ public class PresentadorAgendar {
         gestorAgenda.programarCita(descripcion, fechaCita, celular, dueño, mascota);
     }
 
-    public void limpiarFormulario(Runnable limpiador) {
-        limpiador.run();
-    }
 }

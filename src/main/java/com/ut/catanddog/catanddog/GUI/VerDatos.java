@@ -13,8 +13,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -267,18 +265,6 @@ public class VerDatos extends javax.swing.JFrame {
         tablaMascotas.setRowHeight(50);
 
         tablaMascotas.getColumnModel().getColumn(8).setCellRenderer(new ImageRenderer());
-
-        tablaMascotas.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent event) {
-                if (!event.getValueIsAdjusting()) {
-                    int selectedRow = tablaMascotas.getSelectedRow();
-                    if (selectedRow != -1) {
-                        int id = (int) tablaMascotas.getValueAt(selectedRow, 0);
-                    }
-                }
-            }
-        });
     }
 
     private void mostrarMensaje(String mensaje, String tipo, String titulo) {

@@ -4,8 +4,6 @@ import com.ut.catanddog.catanddog.dominio.modelo.Agenda;
 import com.ut.catanddog.catanddog.dominio.modelo.Dueño;
 import com.ut.catanddog.catanddog.dominio.modelo.Mascota;
 import com.ut.catanddog.catanddog.dominio.puertos.RepositorioAgendas;
-import com.ut.catanddog.catanddog.dominio.puertos.RepositorioDueños;
-import com.ut.catanddog.catanddog.dominio.puertos.RepositorioMascotas;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
