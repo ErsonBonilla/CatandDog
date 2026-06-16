@@ -1,41 +1,55 @@
-
 package com.ut.catanddog.catanddog.Logica;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "MASCOTA")
 public class Mascota implements Serializable {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "NUM_CLIENTE")
     private int num_cliente;
+
     private String nombre;
     private String raza;
     private String color;
     private String alergico;
+
+    @Column(name = "ATENCION_ESPECIAL")
     private String atencion_especial;
+
     private String observaciones;
+
     @Lob
     private byte[] imagen;
-    @OneToOne
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "DUENO_ID")
     private Dueño unDueño;
-    @OneToMany(mappedBy="masco")
-    private LinkedList<Servicio> listaServicios;
-    //alt+ins
+
+    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Servicio> listaServicios = new ArrayList<>();
+
     public Mascota() {
     }
 
-    public Mascota(int num_cliente, String nombre, String raza, String color, String alergico, String atencion_especial, String observaciones, byte[] imagen, Dueño unDueño, LinkedList<Servicio> listaServicios) {
+    public Mascota(int num_cliente, String nombre, String raza, String color, String alergico,
+            String atencion_especial, String observaciones, byte[] imagen, Dueño unDueño,
+            List<Servicio> listaServicios) {
         this.num_cliente = num_cliente;
         this.nombre = nombre;
         this.raza = raza;
@@ -47,10 +61,10 @@ public class Mascota implements Serializable {
         this.unDueño = unDueño;
         this.listaServicios = listaServicios;
     }
-    
-    // Constructor sin imagen
 
-    public Mascota(int num_cliente, String nombre, String raza, String color, String alergico, String atencion_especial, String observaciones, Dueño unDueño, LinkedList<Servicio> listaServicios) {
+    public Mascota(int num_cliente, String nombre, String raza, String color, String alergico,
+            String atencion_especial, String observaciones, Dueño unDueño,
+            List<Servicio> listaServicios) {
         this.num_cliente = num_cliente;
         this.nombre = nombre;
         this.raza = raza;
@@ -61,8 +75,6 @@ public class Mascota implements Serializable {
         this.unDueño = unDueño;
         this.listaServicios = listaServicios;
     }
- 
-
 
     public int getNum_cliente() {
         return num_cliente;
@@ -136,14 +148,12 @@ public class Mascota implements Serializable {
         this.unDueño = unDueño;
     }
 
-    public LinkedList<Servicio> getListaServicios() {
+    public List<Servicio> getListaServicios() {
         return listaServicios;
     }
 
-    public void setListaServicios(LinkedList<Servicio> listaServicios) {
+    public void setListaServicios(List<Servicio> listaServicios) {
         this.listaServicios = listaServicios;
     }
 
-   
-   
 }

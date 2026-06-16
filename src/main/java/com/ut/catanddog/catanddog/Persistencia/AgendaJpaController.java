@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.ut.catanddog.catanddog.Persistencia;
 
 import com.ut.catanddog.catanddog.Logica.Agenda;
@@ -16,20 +12,18 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-/**
- *
- * @author User
- */
 public class AgendaJpaController implements Serializable {
+
+    private EntityManagerFactory emf = null;
 
     public AgendaJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    private EntityManagerFactory emf = null;
 
     public AgendaJpaController() {
         emf = Persistence.createEntityManagerFactory("CatandDogPU");
     }
+
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
@@ -137,5 +131,5 @@ public class AgendaJpaController implements Serializable {
             em.close();
         }
     }
-    
+
 }

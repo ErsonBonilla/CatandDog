@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.ut.catanddog.catanddog.Persistencia;
 
 import com.ut.catanddog.catanddog.Logica.Mascota;
@@ -16,17 +12,15 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-/**
- *
- * @author User
- */
 public class MascotaJpaController implements Serializable {
+
+    private EntityManagerFactory emf = null;
 
     public MascotaJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    private EntityManagerFactory emf = null;
-        public MascotaJpaController() {
+
+    public MascotaJpaController() {
         emf = Persistence.createEntityManagerFactory("CatandDogPU");
     }
 
@@ -137,5 +131,5 @@ public class MascotaJpaController implements Serializable {
             em.close();
         }
     }
-    
+
 }

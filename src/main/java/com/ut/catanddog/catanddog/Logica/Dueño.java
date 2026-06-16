@@ -1,18 +1,26 @@
-
 package com.ut.catanddog.catanddog.Logica;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "DUENO")
 public class Dueño implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "ID_DUENO")
     private int id_dueño;
+
+    @Column(name = "NOMBRE")
     private String nombre;
+
+    @Column(name = "CELULAR")
     private String celDueño;
 
     public Dueño() {
@@ -48,5 +56,4 @@ public class Dueño implements Serializable {
         this.celDueño = celDueño;
     }
 
-    
 }

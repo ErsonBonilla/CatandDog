@@ -1,45 +1,50 @@
 package com.ut.catanddog.catanddog.Logica;
 
 import java.io.Serializable;
-import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-
-
-/**
- *
- * @author User
- */
 @Entity
+@Table(name = "SERVICIO")
 public class Servicio implements Serializable {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "ID_SERVICIO")
     private int id_servicio;
+
     private String nombre;
     private int cantidad;
     private int precio;
+
+    @Column(name = "PORCENTAJE_IVA")
     private int porcentajeIva;
+
     @ManyToOne
-    private Mascota masco;
+    @JoinColumn(name = "MASCOTA_ID")
+    private Mascota mascota;
+
     @ManyToOne
-    private Factura factu;
- 
+    @JoinColumn(name = "FACTURA_ID")
+    private Factura factura;
+
     public Servicio() {
     }
 
-    public Servicio(int id_servicio, String nombre, int cantidad, int precio, int porcentajeIva, Mascota masco, Factura factu) {
+    public Servicio(int id_servicio, String nombre, int cantidad, int precio, int porcentajeIva, Mascota mascota, Factura factura) {
         this.id_servicio = id_servicio;
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.precio = precio;
         this.porcentajeIva = porcentajeIva;
-        this.masco = masco;
-        this.factu = factu;
+        this.mascota = mascota;
+        this.factura = factura;
     }
 
     public int getId_servicio() {
@@ -82,20 +87,20 @@ public class Servicio implements Serializable {
         this.porcentajeIva = porcentajeIva;
     }
 
-    public Mascota getMasco() {
-        return masco;
+    public Mascota getMascota() {
+        return mascota;
     }
 
-    public void setMasco(Mascota masco) {
-        this.masco = masco;
+    public void setMascota(Mascota mascota) {
+        this.mascota = mascota;
     }
 
-    public Factura getFactu() {
-        return factu;
+    public Factura getFactura() {
+        return factura;
     }
 
-    public void setFactu(Factura factu) {
-        this.factu = factu;
-    }  
-   
-} 
+    public void setFactura(Factura factura) {
+        this.factura = factura;
+    }
+
+}

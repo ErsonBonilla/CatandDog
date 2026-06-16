@@ -1,45 +1,54 @@
 package com.ut.catanddog.catanddog.Logica;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Id; 
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-/**
- *
- * @author User
- */
 @Entity
+@Table(name = "FACTURA")
 public class Factura implements Serializable {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "ID_FACTURA")
     private int id_factura;
+
     @Temporal(TemporalType.DATE)
+    @Column(name = "FECHA_VENTA")
     private Date fecha_venta;
+
     private double subtotal;
     private double iva;
+
+    @Column(name = "TOTAL_PAGAR")
     private double total_pagar;
+
     private String estado;
-    
-    @OneToOne
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "DUENO_ID")
     private Dueño unDueño;
-    
-    @OneToMany(mappedBy="factu")
-    private LinkedList<Servicio> listaServicios;
+
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Servicio> listaServicios = new ArrayList<>();
 
     public Factura() {
     }
 
-    public Factura(int id_factura, Date fecha_venta, double subtotal, double iva, double total_pagar, String estado, Dueño unDueño, LinkedList<Servicio> listaServicios) {
+    public Factura(int id_factura, Date fecha_venta, double subtotal, double iva, double total_pagar, String estado, Dueño unDueño, List<Servicio> listaServicios) {
         this.id_factura = id_factura;
         this.fecha_venta = fecha_venta;
         this.subtotal = subtotal;
@@ -106,12 +115,12 @@ public class Factura implements Serializable {
         this.unDueño = unDueño;
     }
 
-    public LinkedList<Servicio> getListaServicios() {
+    public List<Servicio> getListaServicios() {
         return listaServicios;
     }
 
-    public void setListaServicios(LinkedList<Servicio> listaServicios) {
+    public void setListaServicios(List<Servicio> listaServicios) {
         this.listaServicios = listaServicios;
-    }   
-    
+    }
+
 }
